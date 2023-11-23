@@ -1,0 +1,1 @@
+export const backendUrl = "https://podify-backend-ewch.onrender.com";
