@@ -3,18 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Icon } from "@iconify/react";
 import { makeAuthenticatedGETRequest, makeAuthenticatedDELETERequest } from "../utils/ServerHelpers";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 
 const Library = () => {
 
     const [myRecords, setMyRecords] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const getData = async () => {
+        const response = await makeAuthenticatedGETRequest(
+            "/record/get/me"
+        );
+        setMyRecords(response.data);
+        setLoading(false);
+    };
+
     useEffect(() => {
-        const getData = async () => {
-            const response = await makeAuthenticatedGETRequest(
-                "/record/get/me"
-            );
-            setMyRecords(response.data);
-        };
         getData();
     }, [myRecords]);
 
@@ -34,20 +38,31 @@ const Library = () => {
             <div className="text-white text-xl pt-8 font-semibold">
                 My Records
             </div>
-            <div className="py-5 grid gap-5 grid-cols-5">
-                {myRecords.map((item) => {
-                    return (
-                        <Card
-                            key={JSON.stringify(item)}
-                            title={item.name}
-                            owner={item.owner.firstName}
-                            imgUrl={item.thumbnail}
-                            recordId={item._id}
-                            deleteRecord={deleteRecord}
-                        />
-                    );
-                })}
+            <div className={loading?"h-screen flex items-center justify-center":""}>
+                {
+                    loading ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <div className="py-5 grid gap-5 grid-cols-5">
+                            {myRecords.map((item) => {
+                                return (
+                                    <Card
+                                        key={JSON.stringify(item)}
+                                        title={item.name}
+                                        owner={item.owner.firstName}
+                                        imgUrl={item.thumbnail}
+                                        recordId={item._id}
+                                        deleteRecord={deleteRecord}
+                                    />
+                                );
+                            })}
+                        </div>
+                    )
+                }
             </div>
+
+
+
         </LoggedInContainer>
     );
 }
@@ -72,7 +87,7 @@ const Card = ({ title, owner, imgUrl, recordId, deleteRecord }) => {
                         //console.log("Delete Button");
                         deleteRecord(recordId);
                     }
-                    
+
                 } />
             </div>
 

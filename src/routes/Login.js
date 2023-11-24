@@ -5,11 +5,14 @@ import PasswordInput from "../components/shared/PasswordInput";
 import {Link, useNavigate} from "react-router-dom";
 import { makeUnauthenticatedPOSTRequest } from "../utils/ServerHelpers";
 import {useCookies} from "react-cookie";
+import { isLabelWithInternallyDisabledControl } from "@testing-library/user-event/dist/utils";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 const LoginComponent = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [cookies, setCookie] = useCookies(["token"]);
+    const [loading, setLoading]=useState(false);
     const navigate = useNavigate();
 
     const login = async () => {
@@ -24,8 +27,10 @@ const LoginComponent = () => {
             date.setDate(date.getDate() + 30);
             setCookie("token", token, {path: "/", expires: date});
             //alert("Logged in successfully!");
+            setLoading(false);
             navigate("/home");
         } else {
+            setLoading(false);
             alert("Invalid Credentials");
         }
     };
@@ -61,10 +66,13 @@ const LoginComponent = () => {
                         className="bg-green-400 font-semibold p-3 px-10 rounded-full"
                         onClick={(e) => {
                             e.preventDefault();
-                            login();
+                            if(!loading){
+                                login();
+                            }
+                            setLoading(true);
                         }}
                     >
-                        LOG IN
+                        {loading?<LoadingSpinner/>: "LOG IN"}
                     </button>
                 </div>
                 <div className="w-full border border-solid border-gray-300"></div>

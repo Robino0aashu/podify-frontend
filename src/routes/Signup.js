@@ -5,6 +5,7 @@ import TextInput from "../components/shared/TextInput";
 import PasswordInput from "../components/shared/PasswordInput";
 import {Link, useNavigate} from "react-router-dom";
 import { makeUnauthenticatedPOSTRequest } from "../utils/ServerHelpers";
+import LoadingSpinner from "../components/shared/LoadingSpinner";
 
 const SignupComponent = () => {
     const [email, setEmail] = useState("");
@@ -14,6 +15,7 @@ const SignupComponent = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [cookie, setCookie] = useCookies(["token"]);
+    const [loading, setLoading]=useState(false);
     const navigate = useNavigate();
 
     const signUp = async () => {
@@ -34,9 +36,11 @@ const SignupComponent = () => {
             date.setDate(date.getDate() + 30);
             setCookie("token", token, {path: "/", expires: date});
             //alert("User Registered Successfully!");
+            setLoading(false);
             navigate("/home");
             // console.log(response);
         } else {
+            setLoading(false);
             alert("Failure");
         }
     };
@@ -100,10 +104,13 @@ const SignupComponent = () => {
                         className="bg-green-400 font-semibold p-3 px-10 rounded-full"
                         onClick={(e) => {
                             e.preventDefault();
-                            signUp();
+                            if(!loading){
+                                signUp();
+                            }
+                            setLoading(true);
                         }}
                     >
-                        Sign Up
+                        {loading?<LoadingSpinner/>: "SIGN UP"}
                     </button>
                 </div>
                 <div className="w-full border border-solid border-gray-300"></div>
